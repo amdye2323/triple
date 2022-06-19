@@ -18,7 +18,8 @@ export class PointService{
     async addPoint(createReviewDto: CreateReviewDto, reviewId:number, queryRunner:QueryRunner):Promise<number>{
         try {
             let pointList:Point[] = [];
-            const exsistPlaceInfo:Review = await this.reviewRepo.findOne({where:{
+
+            const exsistPlaceInfo:Review = await queryRunner.manager.findOne(Review,{where:{
                 placeUUID:createReviewDto.placeId
             }});
 
@@ -60,24 +61,14 @@ export class PointService{
             throw e;
         }
     }
-    
-    async updatePoint(createReviewDto: CreateReviewDto,  reviewId:number, queryRunner:QueryRunner):Promise<number>{
-        try {
-            
 
-            return;
-        } catch(e){
-            throw e;
-        }
-    }
-
-    async deletePoint(createReviewDto: CreateReviewDto,  reviewId:number, queryRunner:QueryRunner):Promise<number>{
+    async deletePoint(reviewId:number, queryRunner:QueryRunner):Promise<number>{
         try {
             // 기존 리뷰 포인트 초기화
             const pointList:Point[] = await this.pointRepo.find({where:{reviewId}});
 
             for await(const pointInfo of pointList){
-                await queryRunner.manager.delete(Point, pointInfo);
+                await queryRunner.manager.softDelete(Point, pointInfo);
             }
 
             return 1;
