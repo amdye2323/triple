@@ -5,6 +5,7 @@ import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Point } from './point/entities/point.entity';
+import { PointModule } from './point/point.module';
 import { Review } from './review/entities/review.entity';
 import { ReviewModule } from './review/review.module';
 
@@ -22,6 +23,7 @@ import { ReviewModule } from './review/review.module';
       })
     }),
     ReviewModule,
+    PointModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

@@ -32,6 +32,7 @@ export class CreateReviewDto {
         let reviewInfo:Review = new Review();
         
         reviewInfo.type = this.type;
+        reviewInfo.reviewUUID = this.reviewId;
         reviewInfo.userUUID = this.userId;
         reviewInfo.placeUUID = this.placeId;
         reviewInfo.content = this.content;

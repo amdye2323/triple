@@ -30,4 +30,11 @@ export class Review extends BaseEntity {
     @DeleteDateColumn()
     deletedDate: Date;
 
+    static of(params: Partial<Review>): Review {
+        const review = new Review();
+
+        Object.assign(review, params);
+
+        return review;
+    }
 }
