@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateReviewDto } from "src/review/dto/create-review.dto";
 import { Review } from "src/review/entities/review.entity";
 import { QueryRunner } from "typeorm";
+import { userPointResponseDTO } from "../dto/userPoint.response.dto";
 import { Point } from "../entities/point.entity";
 import { pointType } from "../point.enum";
 import { PointRepository } from "../point.repository";
@@ -73,6 +74,10 @@ export class PointService{
 
             let firstFlag:boolean = false;
 
+            const exsistPlaceInfo:Review = await Review.findOne({where: {
+                placeUUID:createReviewDto.placeId
+            }});
+
             for await(let point of deletedPointList){
                 if(point.pointType == 2){ // 첫 장소 보너스
                     const reviewInfo: Review = await Review.findOne({ where: {id: point.reviewId} }); // 해당 리뷰 호출
@@ -106,7 +111,7 @@ export class PointService{
 
                 pointList.push(result);
             }
-            if(firstFlag){
+            if(firstFlag || !exsistPlaceInfo){
                 let point:Point = new Point();
                 point.pointType = pointType.PLACE_POINT;
                 point.reviewId = reviewId;
@@ -144,9 +149,23 @@ export class PointService{
         }
     }
 
-    async countUserPoint(userUUID: string){
+    async countUserPoint(userUUID: string): Promise<userPointResponseDTO>{
         try {
+            const pointList: Point[] = await this.pointRepo.find({where: {userUUID}});
 
+            if(pointList.length <= 0){
+                throw new NotFoundException('해당 유저의 포인트 내역이 존재하지 않습니다.');
+            }
+
+            const userPoint:number = await this.pointRepo.countUserPoint(userUUID);
+
+            let dto = {
+                userId: userUUID,
+                totalPoint:userPoint,
+                pointList
+            } as userPointResponseDTO;
+
+            return dto;
         } catch(e){
             throw e;
         }

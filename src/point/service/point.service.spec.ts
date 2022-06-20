@@ -97,7 +97,7 @@ describe('PointService' , () => {
             await queryRunner.connect();
             await queryRunner.startTransaction();
 
-            jest.spyOn(queryRunner.manager, 'findOne').mockResolvedValue(exsistReview);
+            jest.spyOn(Review, 'findOne').mockResolvedValue(exsistReview);
 
             jest.spyOn(queryRunner.manager, 'save')
                     .mockResolvedValue(resultTextPoint)
@@ -123,7 +123,7 @@ describe('PointService' , () => {
             expect(photoResult).toEqual(2);
 
             // 리뷰 작성 , 사진 첨부, 첫 장소 등록
-            jest.spyOn(queryRunner.manager, 'findOne').mockResolvedValue(undefined);
+            jest.spyOn(Review, 'findOne').mockResolvedValue(undefined);
 
             const placeResult = await pointService.addPoint(requestDto,reviewId,queryRunner);
 
@@ -131,6 +131,15 @@ describe('PointService' , () => {
         });
 
     });
+
+    describe('Type: MOD', () => {
+        it('리뷰 수정 시 요청 데이터에 따라서 포인트 재 정리', async () => {
+
+        });
+        it('리뷰 수정 시 장소 변경이 일어나지 않는다면 보너스 포인트 그대로 존재' , async () => {
+
+        });
+    })
 
     describe('Type: DELETE', () => {
         it('리뷰 삭제시 해당 리뷰에 해당되는 포인트 정보 삭제', async () => {

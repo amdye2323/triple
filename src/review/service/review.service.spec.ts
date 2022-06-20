@@ -121,14 +121,16 @@ describe('ReviewService', () => {
       await queryRunner.startTransaction();
 
       // when 
-      jest.spyOn(reviewRepository, 'findOne').mockResolvedValueOnce(undefined).mockResolvedValueOnce(exsitingReview);
+      jest.spyOn(reviewRepository, 'findOne')
+          .mockResolvedValueOnce(undefined)
+          .mockResolvedValueOnce(exsitingReview);
 
       // then
-      const result = await reviewService.reviewCreate(requestDto, queryRunner);
+      const result = async () => {
+        await reviewService.reviewCreate(requestDto, queryRunner);
+      } 
 
-      console.log(result);
-
-      expect(result).rejects.toThrowError(
+      await expect(result).rejects.toThrowError(
         new BadRequestException('해당 유저는 이 장소에 리뷰를 등록한 유저입니다.')
       );
 

@@ -17,13 +17,13 @@ export class ReviewService {
 
       const reviewUUID = createReviewDto.reviewId;
 
-      const exsistInfo = await this.reviewRepo.findOne({where:{reviewUUID}});
+      const exsistInfo: Review = await this.reviewRepo.findOne({where:{reviewUUID}});
 
       if(exsistInfo){
         throw new BadRequestException('이미 등록 된 리뷰 아이디 입니다.');
       }
 
-      const placeInfo = await this.reviewRepo.findOne({where: [
+      const placeInfo: Review = await this.reviewRepo.findOne({where: [
         { userUUID: createReviewDto.userId },
         { placeUUID: createReviewDto.placeId }
       ]});
@@ -78,9 +78,9 @@ export class ReviewService {
 
       if(!exsistInfo)throw new NotFoundException(`일치하는 리뷰가 존재하지 않습니다.`);
 
-      await queryRunner.manager.softDelete(Review,exsistInfo);
+      exsistInfo.deletedDate = new Date();
 
-      const result = await this.reviewRepo.findOne({where:{reviewUUID}, withDeleted: true});
+      const result = await queryRunner.manager.save(Review,exsistInfo);
 
       return result;
 
