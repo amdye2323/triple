@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Review } from "src/review/entities/review.entity";
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { pointType } from "../point.enum";
 
 @Entity('point')
@@ -17,7 +18,7 @@ export class Point extends BaseEntity {
     pointType: pointType;
 
     @Column()
-    addPoint: number;
+    point: number;
 
     @CreateDateColumn()
     createdDate: Date;
@@ -27,5 +28,15 @@ export class Point extends BaseEntity {
 
     @DeleteDateColumn()
     deletedDate: Date;
+
+    @ManyToOne((type) => Review, review => review.pointList, { nullable: false })
+    review: Review
     
+    static of(params: Partial<Point>): Point{
+        const point = new Point();
+
+        Object.assign(point, params);
+
+        return point;
+    }
 }

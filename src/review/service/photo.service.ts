@@ -35,7 +35,7 @@ export class PhotoService {
 
     async resetPhotos(createReviewDto: CreateReviewDto, reviewId:number, queryRunner:QueryRunner):Promise<Photo[]>{
         try {
-            await queryRunner.manager.delete(Review,{
+            await queryRunner.manager.delete(Photo,{
                 reviewId
             });
 
@@ -52,6 +52,18 @@ export class PhotoService {
             }
 
             return photos;
+        } catch(e){
+            throw e;
+        }
+    }
+
+    async removePhotos(reviewId:number, queryRunner:QueryRunner):Promise<number>{
+        try {
+            await queryRunner.manager.delete(Photo,{
+                reviewId
+            });
+            
+            return 1;
         } catch(e){
             throw e;
         }

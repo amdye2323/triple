@@ -39,5 +39,4 @@ export class CreateReviewDto {
 
         return reviewInfo;
     }
-    
 }

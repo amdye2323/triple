@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Point } from './point/entities/point.entity';
 import { PointModule } from './point/point.module';
+import { Photo } from './review/entities/photo.entity';
 import { Review } from './review/entities/review.entity';
 import { ReviewModule } from './review/review.module';
 
@@ -20,7 +21,7 @@ import { ReviewModule } from './review/review.module';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_NAME: Joi.string().required()
-      })
+      }),
     }),
     ReviewModule,
     PointModule,
@@ -31,9 +32,9 @@ import { ReviewModule } from './review/review.module';
       port: Number(process.env.DB_PORT),
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      entities: [Point,Review],
+      entities: [Point,Review,Photo],
       logging: true,
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

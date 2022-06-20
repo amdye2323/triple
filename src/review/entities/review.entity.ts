@@ -1,4 +1,6 @@
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Point } from "src/point/entities/point.entity";
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Photo } from "./photo.entity";
 
 @Entity('review')
 export class Review extends BaseEntity {
@@ -25,10 +27,16 @@ export class Review extends BaseEntity {
     createdDate: Date;
 
     @UpdateDateColumn()
-    updateDate: Date;
+    updatedDate: Date;
 
     @DeleteDateColumn()
     deletedDate: Date;
+
+    @OneToMany((type) => Point, (item) => item.review )
+    pointList: Point[];
+
+    @OneToMany((type) => Photo, (item) => item.review )
+    photos:Photo[];
 
     static of(params: Partial<Review>): Review {
         const review = new Review();

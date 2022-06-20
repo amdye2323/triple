@@ -23,6 +23,15 @@ export class ReviewService {
         throw new BadRequestException('이미 등록 된 리뷰 아이디 입니다.');
       }
 
+      const placeInfo = await this.reviewRepo.findOne({where: [
+        { userUUID: createReviewDto.userId },
+        { placeUUID: createReviewDto.placeId }
+      ]});
+
+      if(placeInfo){
+        throw new BadRequestException('해당 유저는 이 장소에 리뷰를 등록한 유저입니다.');
+      }
+
       const reviewAddInfo = await createReviewDto.parseToEntity();
 
       const savedInfo = await queryRunner.manager.save(Review,reviewAddInfo);

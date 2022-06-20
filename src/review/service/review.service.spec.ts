@@ -26,6 +26,7 @@ describe('ReviewService', () => {
     Object.assign(qr.manager, {
       save: jest.fn(),
       softDelete: jest.fn(),
+      findOne: jest.fn(),
     });
 
     qr.connect = jest.fn();
@@ -49,6 +50,7 @@ describe('ReviewService', () => {
   describe('Type: ADD', () => {
     it('리뷰 작성 시 이미 작성이 된 리뷰 아이디로 등록시 에러 리턴', async () => {
 
+      // given 
       const requestDto:CreateReviewDto = {
         "reviewId": "240a0658-dc5f-4878-9381-ebb7b2667772",
         "type": "REVIEW",
@@ -75,14 +77,59 @@ describe('ReviewService', () => {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      // when 
       jest.spyOn(reviewRepository, 'findOne').mockResolvedValue(exsitingReview);
 
       const result = async () => {
         await reviewService.reviewCreate(requestDto,queryRunner);
       }
 
+      // then 
       await expect(result).rejects.toThrowError(
         new BadRequestException('이미 등록 된 리뷰 아이디 입니다.'),
+      );
+
+    });
+
+    it('리뷰 작성 시 해당 장소에 해당 유저가 한번이라도 리뷰를 작성했다면 에러 리턴', async () => {
+      // given 
+      const requestDto:CreateReviewDto = {
+        "reviewId": "240a0658-dc5f-4878-9381-ebb7b2667772",
+        "type": "REVIEW",
+        "action": "ADD",
+        "content": "좋아요!",
+        "attachedPhotoIds": ["e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332"],
+        "userId": "3ede0ef2-92b7-4817-a5f3-0c575361f745",
+        "placeId": "2e4baf1c-5acb-4efb-a1af-eddada31b00f",
+        parseToEntity: function (): Promise<Review> {
+          return;
+        }
+      };
+
+      const exsitingReview = Review.of({
+        "id":1,
+        "reviewUUID": "240a0658-dc5f-4878-9381-ebb7b2661172",
+        "type": "REVIEW",
+        "content": "테스트 입니다.",
+        "userUUID": "3dd0ef2-92b7-4817-a5f3-0c575361f745",
+        "placeUUID": "2e4baf1c-5acb-4efb-a1af-eddada31b00f"
+      });
+
+      // when 
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      // when 
+      jest.spyOn(reviewRepository, 'findOne').mockResolvedValueOnce(undefined).mockResolvedValueOnce(exsitingReview);
+
+      // then
+      const result = await reviewService.reviewCreate(requestDto, queryRunner);
+
+      console.log(result);
+
+      expect(result).rejects.toThrowError(
+        new BadRequestException('해당 유저는 이 장소에 리뷰를 등록한 유저입니다.')
       );
 
     });
