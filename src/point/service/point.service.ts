@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import * as moment from "moment";
 import { CreateReviewDto } from "src/review/dto/create-review.dto";
 import { Review } from "src/review/entities/review.entity";
 import { QueryRunner } from "typeorm";
-import { userPointResponseDTO } from "../dto/userPoint.response.dto";
+import { poitnDetail, userPointResponseDTO } from "../dto/userPoint.response.dto";
 import { Point } from "../entities/point.entity";
 import { pointType } from "../point.enum";
 import { PointRepository } from "../point.repository";
@@ -82,7 +83,7 @@ export class PointService{
                 if(point.pointType == 2){ // 첫 장소 보너스
                     const reviewInfo: Review = await Review.findOne({ where: {id: point.reviewId} }); // 해당 리뷰 호출
 
-                    if(reviewInfo.placeUUID == createReviewDto.placeId){
+                    if(reviewInfo.placeUUID == createReviewDto.placeId){ // 장소가 변경되지 않았는지 체크
                         firstFlag = true;
                     }
                 }
@@ -123,7 +124,7 @@ export class PointService{
                 pointList.push(result);
             }
 
-            return ;
+            return pointList;
         } catch(e){
             throw e;
         }
@@ -151,18 +152,51 @@ export class PointService{
 
     async countUserPoint(userUUID: string): Promise<userPointResponseDTO>{
         try {
-            const pointList: Point[] = await this.pointRepo.find({where: {userUUID}});
+            let pointList: Point[] = await this.pointRepo.find({where: {userUUID}, relations:['review']});
 
             if(pointList.length <= 0){
                 throw new NotFoundException('해당 유저의 포인트 내역이 존재하지 않습니다.');
             }
+
+            const transFormPointList = pointList.map(
+                (point) => {
+                    let pointType = "";
+                    switch(point.pointType){
+                        case 0 : {
+                            pointType = "내용 보너스";
+                        } break;
+                        case 1 : {
+                            pointType = "사진 보너스";
+                        } break;
+                        case 2: {
+                            pointType = "첫 장소 보너스";
+                        } break;
+                        default: {
+                            pointType = "알수없음";
+                        }
+                    }
+
+                    const createdDate = moment(point.createdDate).format("YYYY-MM-DD HH:mm:ss");
+
+                    const info = {
+                        reviewId: point.review.reviewUUID,
+                        placeId: point.review.placeUUID,
+                        reviewType: point.review.type,
+                        pointType: pointType,
+                        point: point.point,
+                        createdDate
+                    } as poitnDetail
+
+                    return info;
+                }
+            )
 
             const userPoint:number = await this.pointRepo.countUserPoint(userUUID);
 
             let dto = {
                 userId: userUUID,
                 totalPoint:userPoint,
-                pointList
+                pointList:transFormPointList
             } as userPointResponseDTO;
 
             return dto;

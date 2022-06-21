@@ -133,11 +133,73 @@ describe('PointService' , () => {
     });
 
     describe('Type: MOD', () => {
-        it('리뷰 수정 시 요청 데이터에 따라서 포인트 재 정리', async () => {
+        it('리뷰 수정 시 장소 변경이 일어나지 않는다면 첫 장소 보너스 포인트 그대로 존재 3점에서 사진 삭제로 2점' , async () => {
+            // given
+            const reviewId = 1;
 
-        });
-        it('리뷰 수정 시 장소 변경이 일어나지 않는다면 보너스 포인트 그대로 존재' , async () => {
+            let requestDto:CreateReviewDto = {
+                "reviewId": "240a0658-dc5f-4878-9381-ebb7b2667772",
+                "type": "REVIEW",
+                "action": "MOD",
+                "content": '사진 삭제 입니다.',
+                "attachedPhotoIds": [],
+                "userId": "3ede0ef2-92b7-4817-a5f3-0c575361f745",
+                "placeId": "2e4baf1c-5acb-4efb-a1af-eddada31b00f",
+                parseToEntity: function (): Promise<Review> {
+                    return;
+                }
+            };
 
+            const exsistReview = Review.of({
+                reviewUUID: "240a0658-dc5f-4878-9381-ebb7b2667772",
+                type: "REVIEW",
+                id :1 ,
+                content: '좋아요!',
+                userUUID: '3ede0ef2-92b7-4817-a5f3-0c575361f745',
+                placeUUID:"2e4baf1c-5acb-4efb-a1af-eddada31b00f",
+            });
+
+            let exsistPlacePoint = Point.of({
+                reviewId,
+                pointType:pointType.PLACE_POINT,
+                point: 1
+            });
+
+            let exsistTextPoint = Point.of({
+                reviewId,
+                pointType:pointType.TEXT_POINT,
+                point: 1
+            });
+
+            let exsistPhotoPoint = Point.of({
+                reviewId,
+                pointType:pointType.PHOTO_POINT,
+                point: 1
+            });
+
+            const queryRunner = connection.createQueryRunner();
+            await queryRunner.connect();
+            await queryRunner.startTransaction();
+
+            // when
+            // 기존 리뷰 포인트 초기화
+            jest.spyOn(pointRepository,'find').mockResolvedValueOnce([exsistTextPoint,exsistPhotoPoint,exsistPlacePoint]);
+
+            exsistTextPoint.deletedDate = new Date();
+            exsistPhotoPoint.deletedDate = new Date();
+            exsistPlacePoint.deletedDate = new Date();
+
+            jest.spyOn(queryRunner.manager,'save').mockResolvedValueOnce(exsistTextPoint).mockResolvedValueOnce(exsistPhotoPoint).mockResolvedValueOnce(exsistPlacePoint);
+
+            jest.spyOn(Review,'findOne').mockResolvedValue(exsistReview);
+
+            jest.spyOn(queryRunner.manager, 'save').mockResolvedValueOnce(exsistTextPoint).mockResolvedValueOnce(exsistPlacePoint);
+
+            // then
+
+            const result = async () => {
+                return await pointService.reCountPoint(requestDto, reviewId, queryRunner);
+            }
         });
     })
 

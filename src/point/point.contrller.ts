@@ -21,8 +21,8 @@ export class PointController{
             
             return res.status(200).json(userCountDto);
         } catch(e){
-            return res.status(e.response.statusCode).json({
-                message: e.response.message,
+            return res.status(400).json({
+                message: e.response?.message??"알 수 없는 오류입니다.",
             });
         } 
     }

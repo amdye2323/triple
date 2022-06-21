@@ -331,12 +331,18 @@ describe('ReviewService', () => {
       // const reviewRepoFindOneSpy = jest.spyOn(reviewRepository, 'findOne').mockResolvedValue(exsistInfo);
 
       jest.spyOn(reviewRepository, 'findOne').mockResolvedValue(deleteInfo);
-      jest.spyOn(queryRunner.manager, 'softDelete').mockResolvedValue({
-        raw : 1,
-        generatedMaps : null
-      });
+      // jest.spyOn(queryRunner.manager, 'softDelete').mockResolvedValue({
+      //   raw : 1,
+      //   generatedMaps : null
+      // });
 
-      expect(await reviewService.reviewRemove(reviewUUID,queryRunner)).toEqual(deleteInfo);
+      deleteInfo.deletedDate = new Date();
+
+      jest.spyOn(queryRunner.manager, 'save').mockResolvedValueOnce(deleteInfo);
+
+      const result = await reviewService.reviewRemove(reviewUUID,queryRunner);
+
+      expect(result).toEqual(deleteInfo);
 
     });
   })

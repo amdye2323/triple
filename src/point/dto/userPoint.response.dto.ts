@@ -6,6 +6,21 @@ export class userPointResponseDTO {
 
     totalPoint: number;
 
-    pointList: Point[]
+    pointList: poitnDetail[]
 
+}
+
+export class poitnDetail {
+
+    reviewId: string;
+
+    placeId: string;
+
+    reviewType: string;
+
+    pointType: string;
+
+    point: 1
+
+    createdDate: string;
 }
