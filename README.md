@@ -22,6 +22,10 @@
 - Mysql 5.7
 - Jest / Mock
 
+### ERD
+
+- https://drive.google.com/file/d/1fjhf-y8CcYWvI24UDUUzu3Di9fNwU1fZ/view?usp=sharing
+
 ### DDL
 
 ```
@@ -102,7 +106,6 @@ Request Body:json
 
 Response Body
 {
-{
     "message": "해당 리뷰 요청이 성공적으로 완료되었습니다.",
     "data": {
         "id": 10,
@@ -159,7 +162,6 @@ Response Body
             }
         ]
     }
-}
 }
 ```
 
