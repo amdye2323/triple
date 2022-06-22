@@ -69,6 +69,8 @@ CREATE TABLE `photo` (
 ### Environments
 
 - .env 파일에서 Local 환경 변수를 세팅해주세요.
+- node -v v17.4.0
+- yarn -v 1.22.17
 
 ### Build
 
