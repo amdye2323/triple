@@ -73,6 +73,10 @@ CREATE TABLE `photo` (
 ### Build
 
 ```
+npm install
+```
+
+```
 npm run build
 ```
 ### Run Test
